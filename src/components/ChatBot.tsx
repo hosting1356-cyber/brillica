@@ -5,7 +5,19 @@ import { GoogleGenAI } from "@google/genai";
 import { collection, addDoc, serverTimestamp, setDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let ai: GoogleGenAI | null = null;
+
+const getAI = () => {
+  if (!ai) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      console.warn("GEMINI_API_KEY is missing. Chat might not work.");
+      return null;
+    }
+    ai = new GoogleGenAI({ apiKey: key });
+  }
+  return ai;
+};
 
 enum OperationType {
   CREATE = 'create',
@@ -93,7 +105,14 @@ export const ChatBot = () => {
     }
 
     try {
-      const response = await ai.models.generateContent({
+      const gemini = getAI();
+      if (!gemini) {
+        setMessages(prev => [...prev, { role: 'bot', text: "Chat is currently unavailable. Please check back later." }]);
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await gemini.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
           {
