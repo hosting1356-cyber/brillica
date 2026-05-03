@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A chat conversation session",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the conversation started"
+        },
+        "lastMessageAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last activity in this conversation"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "closed"
+          ]
+        }
+      },
+      "required": [
+        "createdAt"
+      ]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single message in a conversation",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The message text"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "bot"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "text",
+        "role",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Top-level conversation metadata"
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Individual messages in the conversation"
+    }
+  }
+}
